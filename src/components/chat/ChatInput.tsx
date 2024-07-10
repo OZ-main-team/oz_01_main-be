@@ -1,17 +1,17 @@
-import { UserContext, UserType } from '@/App';
+import { UserContext } from '@/App';
 import { XMarkIcon } from '@heroicons/react/16/solid';
 import { CameraIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline';
 import { useContext, useRef, useState } from 'react';
 import Resizer from 'react-image-file-resizer';
 import CommonButton from '../CommonButton';
 interface ChatProps {
-  sendMessage: (message: string, image?: string) => void;
+  sendMessage: (nickname: string, message: string, image?: string) => void;
 }
 
 const ChatInput = ({ sendMessage }: ChatProps) => {
   const [inputMessage, setInputMessage] = useState("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const { userData } = useContext<UserType>(UserContext)
+  const { userData } = useContext(UserContext)
   const fileInputRef = useRef<HTMLInputElement>(null);
 
 
@@ -31,23 +31,6 @@ const ChatInput = ({ sendMessage }: ChatProps) => {
     if (fileInputRef.current) fileInputRef.current.value = ''; // 파일 입력 초기화
   }
 
-  // 파일을 Base64로 인코딩하는 순수함수
-  const convertFileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      Resizer.imageFileResizer(
-        file, // 원본 파일
-        800, // 최대 가로 너비
-        800, // 최대 세로 높이
-        'JPEG', // 변환할 이미지 포맷
-        100, // 품질
-        0, // 회전
-        (uri) => {
-          resolve(uri as string);
-        },
-        'base64' // 출력 타입
-      );
-    });
-  }
 
   const handleCameraIconClick = () => {
     // 카메라 아이콘 클릭 시 파일 선택 창 열기
@@ -116,3 +99,27 @@ const ChatInput = ({ sendMessage }: ChatProps) => {
 };
 
 export default ChatInput;
+
+
+// 파일을 Base64로 인코딩하는 순수함수
+const convertFileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    try {
+      Resizer.imageFileResizer(
+        file, // 원본 파일
+        800, // 최대 가로 너비
+        800, // 최대 세로 높이
+        'JPEG', // 변환할 이미지 포맷
+        100, // 품질
+        0, // 회전
+        (uri) => {
+          resolve(uri as string);
+        },
+        'base64' // 출력 타입
+      );
+
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
